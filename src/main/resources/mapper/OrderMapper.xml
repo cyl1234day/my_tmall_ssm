@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.cyl.mapper.OrderMapper">
+
+    <select id="listAll" resultType="Order">
+        select * from order_ order by id desc
+    </select>
+
+    
+    <select id="findOneById" parameterType="int" resultType="Order">
+        select *
+        from order_
+        where id = #{id}
+    </select>
+
+    <select id="findOrderByUser" parameterType="User" resultType="Order">
+        select *
+        from order_
+        where uid = #{id} and status != 'FINISH' and status!='DELETE'
+    </select>
+
+    <insert id="addOrder" parameterType="Order">
+        <selectKey resultType="int" keyProperty="id" order="AFTER">
+            select LAST_INSERT_ID()
+        </selectKey>
+        insert into order_
+        (orderCode, address, post, receiver, mobile,
+         userMessage, createDate, uid, status)
+        values
+        (#{orderCode}, #{address}, #{post}, #{receiver}, #{mobile},
+         #{userMessage}, #{createDate}, #{user.id}, #{status})
+    </insert>
+
+
+    <update id="updateOrder" parameterType="Order">
+        update order_
+        <set>
+            <if test="confirmDate != null">confirmDate = #{confirmDate},</if>
+            <if test="deliveryDate != null">deliveryDate = #{deliveryDate},</if>
+            <if test="payDate != null">payDate = #{payDate},</if>
+            status = #{status}
+        </set>
+
+        <!--<choose>
+            <when test="confirmDate != null">
+                set confirmDate = #{confirmDate} and status = #{status}
+            </when>
+            <when test="deliveryDate != null">
+                set deliveryDate = #{deliveryDate} and status = #{status}
+            </when>
+            <when test="payDate != null">
+                set payDate = #{payDate} and status = #{status}
+            </when>
+        </choose>    -->
+        where id = #{id}
+    </update>
+
+</mapper>

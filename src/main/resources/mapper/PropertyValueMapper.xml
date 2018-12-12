@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.cyl.mapper.PropertyValueMapper">
+
+    <select id="findOneByPropertyAndProduct" parameterType="map" resultType="PropertyValue">
+        select * from propertyvalue
+        where pid = #{product.id} and ptid = #{property.id}
+    </select>
+
+    <select id="findOneById" parameterType="int" resultType="PropertyValue">
+        select * from propertyvalue
+        where id = #{id}
+    </select>
+
+    <!--***********************************************************************-->
+
+    <resultMap id="propertyValueBean" type="PropertyValue">
+        <id column="id" property="id"/>
+        <result column="value" property="value"/>
+        <association property="property" javaType="Property">
+            <id column="ptpid" property="id"/>
+            <result column="pname" property="name"/>
+        </association>
+    </resultMap>
+
+
+    <select id="listByProduct" parameterType="Product" resultMap="propertyValueBean">
+        select pt.*, pt.pid ptpid, p.name pname
+        from property p, propertyvalue pt
+        where pt.pid = #{id} and pt.ptid = p.id
+    </select>
+
+    <!--***********************************************************************-->
+
+    <insert id="addPropertyValue" parameterType="PropertyValue">
+        insert into propertyvalue
+        (pid, ptid, value)
+        values (#{product.id}, #{property.id}, "")
+    </insert>
+
+    <update id="updatePropertyValue" parameterType="PropertyValue">
+        update propertyvalue
+        set value = #{value}
+        where id = #{id}
+    </update>
+
+</mapper>

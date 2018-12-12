@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.cyl.mapper.CategoryMapper">
+    <select id="listAll" resultType="Category">
+      select * from category order by id desc
+    </select>
+
+    <select id="findOneById" parameterType="int" resultType="Category">
+        select * from category where id = ${value}
+    </select>
+
+    <select id="totalNumber" resultType="long">
+        select count(1) from category
+    </select>
+
+    <select id="listByPage" resultType="Category" parameterType="cn.cyl.util.Page">
+        select * from category order by id desc limit ${start},${countPerPage}
+    </select>
+
+    <insert id="addCategory" parameterType="Category">
+       <selectKey resultType="int" keyProperty="id" order="AFTER">
+           select LAST_INSERT_ID()
+       </selectKey>
+        insert into category (name) values ('${name}')
+    </insert>
+
+
+    <delete id="deleteCategory" parameterType="Category">
+        delete from category where id = ${id}
+    </delete>
+
+    <update id="updateCategory" parameterType="Category">
+        update category
+        set name = '${name}'
+        where id = ${id}
+    </update>
+
+</mapper>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.cyl.mapper.ProductMapper">
+
+    <select id="listByCategory" parameterType="Category" resultType="Product">
+        select * from product where cid = #{id}
+    </select>
+
+    <select id="listByFuzzy" parameterType="String" resultType="Product">
+        select * from product where name like concat('%', #{value}, '%')
+    </select>
+
+
+    <!--**********************************************************************-->
+    <resultMap id="productBean" type="product">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="subTitle" property="subTitle"/>
+        <result column="originalPrice" property="originalPrice"/>
+        <result column="promotePrice" property="promotePrice"/>
+        <result column="stock" property="stock"/>
+        <result column="createDate" property="createDate"/>
+        <association property="category" javaType="Category">
+            <id column="pcid" property="id"/>
+            <result column="cname" property="name"/>
+        </association>
+    </resultMap>
+
+
+    <select id="findOneById" parameterType="int" resultMap="productBean">
+        select p.*, p.cid pcid, c.*, c.name cname
+        from product p,category c
+        where p.id = #{id} and p.cid = c.id
+    </select>
+
+    <!--**********************************************************************-->
+
+    <insert id="addProduct" parameterType="Product">
+        insert into product
+        (name, subTitle, originalPrice, promotePrice, stock, cid, createDate)
+        values
+        (#{name}, #{subTitle}, #{originalPrice}, #{promotePrice}, #{stock}, #{category.id}, #{createDate})
+    </insert>
+
+    <update id="updateProduct" parameterType="Product">
+        update product
+        set name=#{name}, subTitle=#{subTitle}, originalPrice=#{originalPrice}, promotePrice=#{promotePrice},
+            stock=#{stock}, createDate=#{createDate}
+        where id = #{id}
+    </update>
+
+    <delete id="deleteProduct" parameterType="Product">
+        delete from product where id = #{id}
+    </delete>
+</mapper>

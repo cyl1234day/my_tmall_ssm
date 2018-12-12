@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.cyl.mapper.PropertyMapper">
+
+    <select id="listByCategory" parameterType="Category" resultType="Property">
+        select * from property where cid = #{id}
+    </select>
+
+    <!--**********需要在查询出来的Property对象中封装一个Category对象***********-->
+
+    <resultMap id="propertyBean" type="Property">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <association property="category" javaType="Category">
+    <!--**注意：这里的pcid必须是SQL语句中select显式写出来的，并不是Category对象的属性**-->
+            <id column="pcid" property="id"/>
+            <result column="name" property="name"/>
+        </association>
+    </resultMap>
+
+
+    <select id="findOneById" parameterType="int" resultMap="propertyBean">
+        select p.*, p.cid pcid, c.*
+        from property p, category c
+        where p.id = #{id} and p.cid = c.id
+    </select>
+
+    <!--***********************************************************************-->
+
+    <insert id="addProperty" parameterType="Property">
+        insert into property (cid, name) values (#{category.id}, #{name})
+    </insert>
+
+
+    <update id="updateProperty" parameterType="Property">
+        update property set name = #{name} where id = #{id}
+    </update>
+
+    <delete id="deleteProperty" parameterType="Property">
+        delete from property where id = #{id}
+    </delete>
+
+</mapper>

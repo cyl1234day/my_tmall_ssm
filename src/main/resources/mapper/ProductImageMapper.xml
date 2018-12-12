@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.cyl.mapper.ProductImageMapper">
+
+    <resultMap id="productImageBean" type="ProductImage">
+        <id column="id" property="id"/>
+        <result column="type" property="type"/>
+        <association property="product" javaType="Product">
+            <id column="ppid" property="id"/>
+            <result column="pname" property="name"/>
+        </association>
+    </resultMap>
+
+
+    <!--**********************************************************************-->
+
+
+    <select id="list" resultMap="productImageBean" parameterType="map">
+        select pi.*,pi.pid ppid, p.name pname
+        from productimage pi , product p
+        where pi.pid = #{product.id} and pi.type = #{type} and p.id = pi.pid
+    </select>
+
+    <!--***如果想要查询出的结构关联其他对象的话，select语句要把想查的属性写全****-->
+
+    <select id="findOneById" resultMap="productImageBean">
+        select pi.*,pi.pid ppid, p.name pname
+        from productimage pi , product p
+        where pi.id = #{id} and p.id = pi.pid
+    </select>
+
+    <!--**********************************************************************-->
+
+
+    <insert id="addProductImage" parameterType="ProductImage">
+        <selectKey keyProperty="id" resultType="int" order="AFTER">
+            select LAST_INSERT_ID()
+        </selectKey>
+        insert into productimage (pid, type) values (#{product.id}, #{type})
+    </insert>
+
+    <delete id="deleteProductImage" parameterType="int">
+        delete from productimage where id = #{id}
+    </delete>
+
+
+
+</mapper>

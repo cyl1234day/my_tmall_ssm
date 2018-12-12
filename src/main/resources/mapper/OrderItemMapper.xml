@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.cyl.mapper.OrderItemMapper">
+
+    <select id="findOrderItemBeforeGenOrder" parameterType="Product" resultType="OrderItem">
+        select id, number
+        from orderitem
+        where pid = #{product.id} and uid = #{user.id} and isnull(oid)
+    </select>
+
+
+    <select id="findSellCountByProduct" parameterType="Product" resultType="java.lang.Long">
+        select sum(number)
+        from orderitem
+        where pid = #{id} and oid is not null
+    </select>
+
+    <!--***********************************************************************-->
+
+    <resultMap id="orderitemBean" type="OrderItem">
+        <id column="id" property="id"/>
+        <result column="number" property="number"/>
+        <association property="product" javaType="Product">
+            <id column="oipid" property="id"/>
+            <result column="name" property="name"/>
+            <result column="subTitle" property="subTitle"/>
+            <result column="originalPrice" property="originalPrice"/>
+            <result column="promotePrice" property="promotePrice"/>
+            <result column="stock" property="stock"/>
+        </association>
+    </resultMap>
+
+
+    <select id="findOrderItemsInCart" parameterType="User" resultMap="orderitemBean">
+        select oi.pid oipid, oi.*, p.*
+        from orderitem oi, product p
+        where uid = #{id} and isnull(oid) and oi.pid = p.id
+    </select>
+
+
+    <select id="findOneById" parameterType="int" resultMap="orderitemBean">
+        select oi.pid oipid, oi.*, p.*
+        from orderitem oi, product p
+        where oi.id = #{id} and isnull(oid) and oi.pid = p.id
+    </select>
+
+    <!--***********************************************************************-->
+
+    <resultMap id="orderitemBeanWithUser" type="OrderItem">
+        <id column="id" property="id"/>
+        <result column="number" property="number"/>
+        <association property="product" javaType="Product">
+            <id column="oipid" property="id"/>
+            <result column="name" property="name"/>
+            <result column="subTitle" property="subTitle"/>
+            <result column="originalPrice" property="originalPrice"/>
+            <result column="promotePrice" property="promotePrice"/>
+            <result column="stock" property="stock"/>
+        </association>
+        <association property="user" javaType="User">
+            <id column="oiuid" property="id"/>
+            <result column="uname" property="name"/>
+        </association>
+    </resultMap>
+
+
+    <select id="findOrderItemsByOrder" parameterType="Order" resultMap="orderitemBeanWithUser">
+        select oi.pid oipid, oi.*, p.*, oi.uid oiuid, u.name uname
+        from orderitem oi, product p, user u
+        where oi.oid = #{id} and oi.pid = p.id and u.id = oi.uid
+    </select>
+
+
+    <!--***********************************************************************-->
+
+    <delete id="deleteOrderItem" parameterType="int">
+        delete from orderitem where id = #{id}
+    </delete>
+
+
+
+    <insert id="addOrderItem" parameterType="OrderItem">
+        <selectKey resultType="int" order="AFTER" keyProperty="id">
+            select LAST_INSERT_ID()
+        </selectKey>
+        insert into orderitem
+        (pid, uid, number)
+        values (#{product.id}, #{user.id}, #{number})
+    </insert>
+
+
+    <update id="updateOrderItem" parameterType="OrderItem">
+        update orderitem
+        <set>
+            <if test="order == null">number = #{number}</if>
+            <if test="order != null">oid = #{order.id}</if>
+        </set>
+        where id = #{id}
+    </update>
+
+</mapper>
